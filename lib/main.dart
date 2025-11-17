@@ -3,25 +3,46 @@ import 'pages/notices_page.dart';
 import 'pages/sermons_page.dart';
 import 'pages/live_page.dart';
 import 'pages/notes_page.dart';
+// import 'pages/sliding_cards_widget.dart'; // REMOVED (or commented out) to fix carousel error
 
 void main() {
   runApp(const MyApp());
 }
+
+// Global Theme Manager using ValueNotifier
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'KAG DARAJA',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const DashboardScreen(),
+    // ValueListenableBuilder listens to themeNotifier for changes
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder: (_, currentMode, __) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'KAG DARAJA',
+          themeMode: currentMode,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+            useMaterial3: true,
+            brightness: Brightness.light,
+          ),
+          darkTheme: ThemeData(
+            primarySwatch: Colors.blue,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+            brightness: Brightness.dark,
+          ),
+          home: const DashboardScreen(),
+        );
+      },
     );
   }
 }
@@ -48,10 +69,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  // Helper function to toggle the theme mode
+  void _toggleTheme() {
+    themeNotifier.value = themeNotifier.value == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Determine the current icon based on the theme
+    final isDarkMode = themeNotifier.value == ThemeMode.dark;
+    final icon = isDarkMode ? Icons.light_mode : Icons.dark_mode;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(
+        context,
+      ).colorScheme.background, // Use theme background color
       appBar: AppBar(
         title: const Text(
           'KAG DARAJA',
@@ -61,6 +95,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Hamburger icon color
         ),
+        actions: [
+          IconButton(
+            icon: Icon(icon, color: Colors.white),
+            onPressed: _toggleTheme,
+            tooltip: isDarkMode
+                ? 'Switch to Light Mode'
+                : 'Switch to Dark Mode',
+          ),
+        ],
       ),
       drawer: _buildDrawer(context),
       body: _pages[_selectedIndex],
@@ -127,6 +170,7 @@ class DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -139,13 +183,16 @@ class DashboardContent extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue[800],
+                color: theme.colorScheme.primary, // Use theme primary color
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Glad to see you again.',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
             // Daily Devotion Card
@@ -153,7 +200,9 @@ class DashboardContent extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              color: Colors.blue[200],
+              color: theme
+                  .colorScheme
+                  .primaryContainer, // Use a container color for card background
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -165,7 +214,7 @@ class DashboardContent extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[800],
+                        color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -174,13 +223,18 @@ class DashboardContent extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.blue[700],
+                        color: theme.colorScheme.secondary,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       '"Trust in the Lord with all your heart and lean not on your own understanding." - Proverbs 3:5',
-                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: theme.colorScheme.onPrimaryContainer.withOpacity(
+                          0.8,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -188,11 +242,17 @@ class DashboardContent extends StatelessWidget {
                       children: [
                         Text(
                           'Date: ${DateTime.now().toLocal().toString().split(' ')[0]}',
-                          style: const TextStyle(color: Colors.black54),
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimaryContainer
+                                .withOpacity(0.6),
+                          ),
                         ),
                         Text(
                           'Day: ${_getWeekday(DateTime.now())}',
-                          style: const TextStyle(color: Colors.black54),
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimaryContainer
+                                .withOpacity(0.6),
+                          ),
                         ),
                       ],
                     ),
@@ -256,6 +316,11 @@ class DashboardContent extends StatelessWidget {
                 ),
               ],
             ),
+
+            // The carousel component is now commented out below
+            // const SizedBox(height: 24),
+            // const SlidingEventCards(),
+            // const SizedBox(height: 16),
           ],
         ),
       ),
