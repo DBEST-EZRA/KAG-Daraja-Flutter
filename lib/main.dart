@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/notices_page.dart';
 import 'pages/sermons_page.dart';
+import 'pages/live_page.dart';
+import 'pages/notes_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,8 +38,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<Widget> _pages = [
     const DashboardContent(),
-    const Center(child: Text('Live Page')),
-    const Center(child: Text('Notes Page')),
+    const LivePage(),
+    const NotesPage(),
   ];
 
   void _onNavTapped(int index) {
