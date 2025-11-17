@@ -34,7 +34,7 @@ class _NotebookPainter extends CustomPainter {
     final marginPaint = Paint()
       ..color = Colors.red
       ..strokeWidth = 1.0;
-    const marginX = 40.0;
+    const marginX = 0.0;
     canvas.drawLine(
       Offset(marginX, 0),
       Offset(marginX, size.height),

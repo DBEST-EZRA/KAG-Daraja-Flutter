@@ -1,4 +1,4 @@
-// notes_page.dart (Your main file, replacing the old content)
+// notes_page.dart (Adjusted Code)
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'note_model.dart';
@@ -32,14 +32,15 @@ class _NotesPageState extends State<NotesPage> {
     super.dispose();
   }
 
-  // Database Refresh Method
+  // Refresh Notes from Database
   Future _refreshNotes() async {
     setState(() => _isLoading = true);
     _notes = await NoteDatabase.instance.readAllNotes();
-    _searchNotes(); // Re-apply search filter
+    _searchNotes();
     setState(() => _isLoading = false);
   }
 
+  // Search Filter
   void _searchNotes() {
     final query = _searchController.text.toLowerCase();
     setState(() {
@@ -57,7 +58,7 @@ class _NotesPageState extends State<NotesPage> {
     });
   }
 
-  // Navigation Handlers
+  // Navigation: Add Note
   void _navigateToAddNote() async {
     final result = await Navigator.push(
       context,
@@ -68,8 +69,8 @@ class _NotesPageState extends State<NotesPage> {
     }
   }
 
+  // Navigation: View Note
   void _navigateToViewNote(Note note) async {
-    // The NoteViewerPage handles the logic for edit/delete, then pops back
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -80,7 +81,7 @@ class _NotesPageState extends State<NotesPage> {
             _refreshNotes();
           },
           onEdit: () async {
-            Navigator.pop(context); // Close viewer page
+            Navigator.pop(context);
             final editResult = await Navigator.push(
               context,
               MaterialPageRoute(
@@ -94,6 +95,7 @@ class _NotesPageState extends State<NotesPage> {
         ),
       ),
     );
+
     if (result == true) {
       _refreshNotes();
     }
@@ -103,28 +105,18 @@ class _NotesPageState extends State<NotesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'My Notes',
-          style: TextStyle(
-            color: Colors.white, // <--- Add this line
-          ),
-        ),
+        title: const Text('My Notes', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.blue,
-        actions: [
-          CircleAvatar(
-            radius: 20, // Adjust size as needed
-            backgroundColor: Colors.orange, // The orange circle background
-            child: IconButton(
-              icon: const Icon(
-                Icons.add,
-                color: Colors.white, // The white icon color
-              ),
-              onPressed: _navigateToAddNote,
-              tooltip: 'Add New Note',
-            ),
-          ),
-        ],
+        actions: [],
       ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: _navigateToAddNote,
+        tooltip: 'Add New Note',
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+
       body: Column(
         children: [
           Padding(
@@ -138,6 +130,7 @@ class _NotesPageState extends State<NotesPage> {
               ),
             ),
           ),
+
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -147,7 +140,7 @@ class _NotesPageState extends State<NotesPage> {
                       _searchController.text.isEmpty
                           ? 'No notes saved yet. Tap + to add one.'
                           : 'No matching notes found.',
-                      style: TextStyle(color: Colors.grey[600]),
+                      style: TextStyle(color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                   )
@@ -160,6 +153,7 @@ class _NotesPageState extends State<NotesPage> {
                       final preview = note.content.length > 50
                           ? '${note.content.substring(0, 50).trim()}...'
                           : note.content;
+
                       return ListTile(
                         title: Text(
                           note.title,
