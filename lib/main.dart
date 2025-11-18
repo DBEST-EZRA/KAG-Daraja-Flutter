@@ -1,3 +1,4 @@
+import 'pages/bible_page.dart';
 import 'package:flutter/material.dart';
 import 'pages/notices_page.dart';
 import 'pages/sermons_page.dart';
@@ -298,8 +299,14 @@ class DashboardContent extends StatelessWidget {
                 _buildDashboardItem(
                   context,
                   Icons.people,
-                  'Attendance',
-                  Colors.black,
+                  'Bible',
+                  Colors.pink,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => BiblePage()),
+                    );
+                  },
                 ),
                 _buildDashboardItem(
                   context,
